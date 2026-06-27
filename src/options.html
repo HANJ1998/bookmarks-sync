@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>设置 - 一键书签同步</title>
+<style>
+/* ── Reset & base ── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: "Segoe UI Variable", "Segoe UI", "Microsoft YaHei", sans-serif;
+  background: #eceff1;
+  color: #1a1a2e;
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+/* ── Page shell ── */
+.page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 32px 32px 60px;
+}
+
+/* ── Title card ── */
+.page-title {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-left: 4px solid #1a73e8;
+  padding: 18px 22px;
+  margin-bottom: 20px;
+}
+.page-title h1 { font-size: 20px; font-weight: 600; color: #1a1a2e; }
+.page-title .sub { font-size: 13px; color: #5f6368; margin-top: 3px; }
+
+/* ── Card ── */
+.card {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  margin-bottom: 20px;
+}
+.card-header {
+  padding: 16px 22px 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #1a73e8;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+}
+.card-body { padding: 14px 22px 20px; }
+
+/* ── Settings row ── */
+.setting {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 13px 0;
+}
+.setting + .setting { border-top: 1px solid #f0f0f0; }
+.setting-info { flex: 1; min-width: 0; }
+.setting-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin-bottom: 2px;
+}
+.setting-desc {
+  font-size: 12px;
+  color: #5f6368;
+  line-height: 1.5;
+}
+.setting-control {
+  flex: 0 0 auto;
+  min-width: 220px;
+}
+
+/* ── Form controls ── */
+input[type="text"], input[type="password"], select {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid #dadce0;
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  background: #fff;
+  transition: border-color .12s, box-shadow .12s;
+}
+input:focus, select:focus {
+  border-color: #1a73e8;
+  box-shadow: 0 0 0 3px rgba(26,115,232,0.12);
+}
+select { cursor: pointer; }
+
+/* ── Radio group ── */
+.radio-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 8px 0;
+  cursor: pointer;
+}
+.radio-item + .radio-item { border-top: 1px solid #f5f5f5; }
+.radio-item input { margin-top: 3px; flex-shrink: 0; }
+.radio-item-text { font-size: 13px; line-height: 1.4; }
+.radio-item-desc { font-size: 12px; color: #5f6368; margin-top: 1px; }
+
+/* ── Button ── */
+.btn-primary {
+  padding: 9px 28px;
+  border: none;
+  background: #1a73e8;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background .1s;
+}
+.btn-primary:hover { background: #1557b0; }
+.btn-primary:active { background: #0d47a1; }
+
+#msg {
+  margin-top: 12px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  display: none;
+}
+#msg.success { color: #137333; background: #e6f4ea; display: block; }
+#msg.error { color: #b71c1c; background: #fce8e6; display: block; }
+
+/* ── History table ── */
+.history-section { margin-top: 8px; }
+#historyEmpty { font-size: 13px; color: #9aa0a6; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th, td {
+  border: 1px solid #e8eaed;
+  padding: 8px 10px;
+  text-align: left;
+  white-space: nowrap;
+}
+th {
+  background: #f8f9fa;
+  font-weight: 600;
+  color: #5f6368;
+  font-size: 11px;
+  letter-spacing: .3px;
+}
+td { background: #fff; }
+.ok { color: #137333; font-weight: 700; }
+.err { color: #b71c1c; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <div class="page-title">
+    <h1>设置</h1>
+    <div class="sub">一键书签同步 · WebDAV</div>
+  </div>
+
+  <!-- ── Connection ── -->
+  <div class="card">
+    <div class="card-header">WebDAV 连接</div>
+    <div class="card-body">
+      <div class="setting">
+        <div class="setting-info">
+          <div class="setting-label">服务器地址</div>
+          <div class="setting-desc">例如 https://dav.jianguoyun.com/dav/（坚果云），其他支持 WebDAV 的服务同样可用</div>
+        </div>
+        <div class="setting-control">
+          <input type="text" id="webdavUrl" placeholder="https://dav.jianguoyun.com/dav/">
+        </div>
+      </div>
+      <div class="setting">
+        <div class="setting-info">
+          <div class="setting-label">用户名</div>
+          <div class="setting-desc">WebDAV 用户名（坚果云为注册邮箱）</div>
+        </div>
+        <div class="setting-control">
+          <input type="text" id="username" placeholder="WebDAV 用户名">
+        </div>
+      </div>
+      <div class="setting">
+        <div class="setting-info">
+          <div class="setting-label">密码</div>
+          <div class="setting-desc">坚果云需在「安全选项」中生成应用密码，其他服务使用账号密码即可</div>
+        </div>
+        <div class="setting-control">
+          <input type="password" id="password" placeholder="WebDAV 密码">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Backup ── -->
+  <div class="card">
+    <div class="card-header">备份设置</div>
+    <div class="card-body">
+      <div class="setting">
+        <div class="setting-info">
+          <div class="setting-label">保存目录</div>
+          <div class="setting-desc">书签文件将保存在 WebDAV 的此目录下</div>
+        </div>
+        <div class="setting-control">
+          <input type="text" id="syncPath" placeholder="书签备份">
+        </div>
+      </div>
+      <div class="setting">
+        <div class="setting-info">
+          <div class="setting-label">自动同步</div>
+          <div class="setting-desc">开启后浏览器将在后台自动同步，无需手动操作</div>
+        </div>
+        <div class="setting-control">
+          <select id="syncInterval">
+            <option value="0">关闭</option>
+            <option value="60">每小时</option>
+            <option value="360">每 6 小时</option>
+            <option value="720">每 12 小时</option>
+            <option value="1440">每天</option>
+          </select>
+        </div>
+      </div>
+      <div class="setting">
+        <div class="setting-info">
+          <div class="setting-label">备份保留</div>
+          <div class="setting-desc">坚果云中的备份文件超过此天数后自动清理</div>
+        </div>
+        <div class="setting-control">
+          <select id="retentionDays">
+            <option value="0">永久保留</option>
+            <option value="30">30 天</option>
+            <option value="90">90 天</option>
+            <option value="180">180 天</option>
+            <option value="365" selected>365 天</option>
+          </select>
+        </div>
+      </div>
+      <div class="setting" style="flex-direction:column;gap:6px;padding-bottom:4px">
+        <div class="setting-label">同步模式</div>
+        <div class="radio-group">
+          <label class="radio-item">
+            <input type="radio" name="syncMode" value="local_first" checked>
+            <div>
+              <div class="radio-item-text"><b>以本地为准</b>（推荐）</div>
+              <div class="radio-item-desc">将浏览器书签上传覆盖云端，无视云端更改</div>
+            </div>
+          </label>
+          <label class="radio-item">
+            <input type="radio" name="syncMode" value="bidirectional">
+            <div>
+              <div class="radio-item-text"><b>双向同步</b></div>
+              <div class="radio-item-desc">浏览器与云端双向合并，新增、修改、删除互相同步</div>
+            </div>
+          </label>
+          <label class="radio-item">
+            <input type="radio" name="syncMode" value="cloud_first">
+            <div>
+              <div class="radio-item-text"><b>以云端为准</b></div>
+              <div class="radio-item-desc">用云端书签覆盖浏览器，无视本地更改</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div style="margin-top:16px">
+        <button class="btn-primary" id="saveBtn">保存设置</button>
+        <div id="msg"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── History ── -->
+  <div class="card history-section">
+    <div class="card-header">同步历史</div>
+    <div class="card-body">
+      <div id="historyEmpty">暂无同步记录</div>
+      <div class="table-wrap" style="display:none" id="historyTableWrap">
+        <table>
+          <thead><tr>
+            <th>时间</th>
+            <th>结果</th>
+            <th>模式</th>
+            <th>本地书签</th>
+            <th>远程书签</th>
+            <th>新增到本地</th>
+            <th>更新标题</th>
+            <th>从本地删除</th>
+            <th>从远程删除</th>
+            <th>清理备份</th>
+          </tr></thead>
+          <tbody id="historyBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="options.js"></script>
+</body>
+</html>

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>一键书签同步</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  width: 340px;
+  font-family: "Segoe UI Variable", "Segoe UI", "Microsoft YaHei", sans-serif;
+  background: #fff;
+  color: #1a1a2e;
+  padding: 0;
+  font-size: 13px;
+}
+
+/* ── Title area ── */
+.titlebar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 16px 11px;
+  border-bottom: 1px solid #e8eaed;
+}
+.titlebar .mark {
+  width: 4px; height: 18px;
+  background: #1a73e8;
+  flex-shrink: 0;
+}
+.titlebar h1 { font-size: 13px; font-weight: 600; color: #1a1a2e; }
+
+/* ── Body ── */
+.body { padding: 12px 16px 0; }
+
+.config-banner {
+  display: none;
+  background: #fef7e0;
+  border-left: 3px solid #f9a825;
+  padding: 11px 12px;
+  margin-bottom: 12px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #5a4000;
+}
+
+/* ── Status panel ── */
+.status-panel {
+  background: #f8f9fa;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+}
+.status-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+}
+.status-row + .status-row { border-top: 1px solid #e8eaed; margin-top: 4px; padding-top: 8px; }
+.status-lbl { color: #5f6368; font-size: 12px; }
+.status-val { font-weight: 600; font-size: 13px; color: #1a1a2e; }
+.status-val.muted { color: #9aa0a6; font-weight: 400; }
+
+/* ── Button ── */
+.btn {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  border: none;
+  background: #1a73e8;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background .1s;
+}
+.btn:hover { background: #1557b0; }
+.btn:active { background: #0d47a1; }
+.btn:disabled { background: #c4c7cc; cursor: not-allowed; }
+
+#progress {
+  display: none;
+  padding: 10px 0;
+  font-size: 12px;
+  color: #5f6368;
+  text-align: center;
+}
+.spinner {
+  display: inline-block;
+  width: 12px; height: 12px;
+  border: 2px solid #dadce0;
+  border-top-color: #1a73e8;
+  animation: spin .6s linear infinite;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+#error {
+  display: none;
+  margin-top: 8px;
+  padding: 8px 10px;
+  font-size: 12px;
+  color: #b71c1c;
+  background: #fce8e6;
+  border-left: 3px solid #b71c1c;
+}
+
+/* ── History ── */
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #5f6368;
+  letter-spacing: .5px;
+  margin: 14px 0 6px;
+}
+#historyEmpty { font-size: 12px; color: #9aa0a6; margin-top: 4px; }
+.hist-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 0;
+  font-size: 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.hist-item:last-child { border-bottom: none; }
+.hist-ok { color: #137333; font-weight: 600; }
+.hist-err { color: #b71c1c; font-weight: 600; }
+
+/* ── Footer ── */
+.footer {
+  padding: 10px 16px 12px;
+  border-top: 1px solid #e8eaed;
+  margin-top: 8px;
+  display: flex;
+  justify-content: flex-end;
+}
+.link {
+  color: #5f6368;
+  font-size: 12px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: color .1s;
+}
+.link:hover { color: #1a73e8; }
+</style>
+</head>
+<body>
+
+<div class="titlebar">
+  <div class="mark"></div>
+  <h1>一键书签同步</h1>
+</div>
+
+<div class="body">
+
+  <div class="config-banner" id="configHint">
+    请先完成 WebDAV 配置才能同步书签。<br>
+    <a class="link" id="goSettings" style="font-weight:600;margin-top:2px;display:inline-block;color:#1a73e8">前往设置 →</a>
+  </div>
+
+  <div class="status-panel" id="status">
+    <div class="status-row">
+      <span class="status-lbl">上次同步</span>
+      <span class="status-val" id="time">-</span>
+    </div>
+    <div class="status-row">
+      <span class="status-lbl">书签数量</span>
+      <span class="status-val" id="count">-</span>
+    </div>
+  </div>
+
+  <button class="btn" id="syncBtn">立即同步</button>
+  <div id="progress"><span class="spinner"></span>同步中...</div>
+  <div id="error"></div>
+
+  <div class="section-label">最近同步</div>
+  <div id="historyEmpty">暂无同步记录</div>
+  <div id="historyList"></div>
+
+</div>
+
+<div class="footer">
+  <a class="link" id="openOptions">高级设置</a>
+</div>
+
+<script src="popup.js"></script>
+</body>
+</html>
