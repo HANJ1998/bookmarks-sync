@@ -55,6 +55,13 @@ function hasBookmarkChanged(a, b) {
   return false;
 }
 
+/** 本地时区时间戳 YYYY-MM-DDTHHmmss */
+function localTS() {
+  const d = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
+}
+
 function buildSyncJSON(items) {
   return JSON.stringify({
     version: 1,
@@ -258,7 +265,7 @@ async function runFullSync() {
     const { lastSyncItems } = await chrome.storage.local.get('lastSyncItems');
     const hasChanged = !lastSyncItems || hasBookmarkChanged(localItems, lastSyncItems);
     if (hasChanged) {
-      const backupTS = new Date().toISOString().replace(/[:.]/g, '').slice(0, 17);
+      const backupTS = localTS();
       await client.putFile(
         `${syncPath}/Edge书签_备份_${backupTS}.json`,
         buildSyncJSON(localItems),
