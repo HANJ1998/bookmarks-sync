@@ -62,9 +62,4 @@ jobs:
 
             ### 更新内容
             ${{ steps.changelog.outputs.notes }}
-
-            ### 安装
-            1. 下载 zip 并解压
-            2. 打开 Chrome/Edge → 扩展管理 → 开发者模式
-            3. 加载解压缩的扩展 → 选择 `src/` 目录
           files: bookmarks-sync-${{ steps.version.outputs.tag }}.zip
