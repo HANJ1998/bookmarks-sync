@@ -349,16 +349,21 @@ async function runFullSync() {
       }
     }
 
-    // ---- 5. 读取合并后的书签，上传 ----
+    // ---- 5. 读取合并后的书签 ----
     const mergedTree = await chrome.bookmarks.getTree();
     const mergedItems = flattenBookmarks(mergedTree);
-    const jsonStr = buildSyncJSON(mergedItems);
-    const htmlStr = exportBookmarkHTML(mergedTree);
-    const dateStr = new Date().toISOString().slice(0, 10);
 
-    await client.putFile(`${syncPath}/Edge书签_数据.json`, jsonStr, 'application/json; charset=utf-8');
-    await client.putFile(`${syncPath}/Edge书签_最新.html`, htmlStr, 'text/html; charset=utf-8');
-    await client.putFile(`${syncPath}/Edge书签_${dateStr}.html`, htmlStr, 'text/html; charset=utf-8');
+    // 只有最终结果有变化时才上传（避免坚果云产生多余版本记录）
+    const mergedChanged = JSON.stringify(mergedItems) !== JSON.stringify(lastSyncItems || []);
+    if (mergedChanged) {
+      const jsonStr = buildSyncJSON(mergedItems);
+      const htmlStr = exportBookmarkHTML(mergedTree);
+      const dateStr = new Date().toISOString().slice(0, 10);
+
+      await client.putFile(`${syncPath}/Edge书签_数据.json`, jsonStr, 'application/json; charset=utf-8');
+      await client.putFile(`${syncPath}/Edge书签_最新.html`, htmlStr, 'text/html; charset=utf-8');
+      await client.putFile(`${syncPath}/Edge书签_${dateStr}.html`, htmlStr, 'text/html; charset=utf-8');
+    }
 
     // ---- 6. 清理过期备份 ----
     const cleaned = await cleanOldBackups(client, syncPath, retentionDays);

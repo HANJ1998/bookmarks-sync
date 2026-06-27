@@ -38,19 +38,9 @@ $('saveBtn').addEventListener('click', () => {
 
   chrome.storage.sync.set(data, () => {
     msg.className = 'success';
-    msg.textContent = '设置已保存，正在同步...';
-
-    // 保存后立即执行一次同步
-    chrome.runtime.sendMessage({ action: 'sync' }, (result) => {
-      if (result && result.success) {
-        msg.textContent = '设置已保存，同步完成';
-        loadHistory(); // 刷新历史
-      } else {
-        msg.textContent = '设置已保存，同步失败：' + (result?.error || '未知错误');
-        msg.className = 'error';
-      }
-      setTimeout(() => { msg.className = ''; msg.style.display = 'none'; }, 3000);
-    });
+    msg.textContent = '设置已保存';
+    loadHistory();
+    setTimeout(() => { msg.className = ''; msg.style.display = 'none'; }, 2500);
   });
 });
 
