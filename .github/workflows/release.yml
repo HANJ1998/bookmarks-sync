@@ -37,6 +37,20 @@ jobs:
             popup.html popup.js options.html options.js \
             icons/
 
+      - name: Generate changelog
+        id: changelog
+        run: |
+          LAST_TAG=$(git tag --sort=-creatordate | head -1)
+          if [ -z "$LAST_TAG" ]; then
+            LOG=$(git log --oneline --no-decorate --format="- %s" HEAD)
+          else
+            LOG=$(git log --oneline --no-decorate --format="- %s" "$LAST_TAG"..HEAD)
+          fi
+          LOG="${LOG//'%'/'%25'}"
+          LOG="${LOG//$'\n'/'%0A'}"
+          LOG="${LOG//$'\r'/'%0D'}"
+          echo "notes=$LOG" >> $GITHUB_OUTPUT
+
       - name: Create release
         if: steps.check.outputs.exists == 'false'
         uses: softprops/action-gh-release@v2
@@ -44,9 +58,12 @@ jobs:
           tag_name: ${{ steps.version.outputs.tag }}
           name: ${{ steps.version.outputs.tag }}
           body: |
-            一键书签同步 ${{ steps.version.outputs.tag }}
+            ## 一键书签同步 ${{ steps.version.outputs.tag }}
 
-            ## 安装
+            ### 更新内容
+            ${{ steps.changelog.outputs.notes }}
+
+            ### 安装
             1. 下载 zip 并解压
             2. 打开 Chrome/Edge → 扩展管理 → 开发者模式
             3. 加载解压缩的扩展 → 选择 `src/` 目录
