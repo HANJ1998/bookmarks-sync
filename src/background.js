@@ -258,7 +258,7 @@ async function runFullSync() {
     const { lastSyncItems } = await chrome.storage.local.get('lastSyncItems');
     const hasChanged = !lastSyncItems || hasBookmarkChanged(localItems, lastSyncItems);
     if (hasChanged) {
-      const backupTS = new Date().toISOString().replace(/[:.]/g, '').slice(0, 15);
+      const backupTS = new Date().toISOString().replace(/[:.]/g, '').slice(0, 17);
       await client.putFile(
         `${syncPath}/Edge书签_备份_${backupTS}.json`,
         buildSyncJSON(localItems),
