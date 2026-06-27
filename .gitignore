@@ -1,8 +1,19 @@
 # Python
-generate_icon.py
 __pycache__/
 *.pyc
+*.pyo
 
 # OS
 .DS_Store
 Thumbs.db
+*.swp
+*.swo
+
+# IDE
+.vscode/
+.idea/
+*.sublime-*
+
+# Build
+*.zip
+*.log
