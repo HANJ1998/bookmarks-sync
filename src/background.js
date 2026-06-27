@@ -3,7 +3,8 @@
 // 核心思路：记录上次同步快照 lastSyncItems，对比增量
 importScripts('webdav.js');
 
-// ============================================================
+/** 同步锁，防止并发 sync 导致 lastSyncItems 读取到过期值 */
+let _syncing = false;// ============================================================
 //  书签数据转换
 // ============================================================
 
@@ -207,6 +208,8 @@ setupAlarm();
 // ============================================================
 
 async function runFullSync() {
+  if (_syncing) return { success: false, error: '同步正在进行中，请稍后再试' };
+  _syncing = true;
   const history = { status: 'ok' };
   try {
     // ---- 0. 加载配置 ----
@@ -388,9 +391,11 @@ async function runFullSync() {
       lastSyncCount: mergedItems.length,
       syncHistory: sh,
     });
+    _syncing = false;
     return { success: true, count: mergedItems.length, ...history };
 
   } catch (e) {
+    _syncing = false;
     // 错误时也尝试保存历史（失败不抛出，避免 SW 崩溃）
     try {
       const prev = await chrome.storage.local.get('syncHistory');
