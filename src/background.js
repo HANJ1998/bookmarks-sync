@@ -4,7 +4,9 @@
 importScripts('webdav.js');
 
 /** 同步锁，防止并发 sync 导致 lastSyncItems 读取到过期值 */
-let _syncing = false;// ============================================================
+let _syncing = false;
+
+// ============================================================
 //  书签数据转换
 // ============================================================
 
@@ -34,6 +36,23 @@ function buildUrlMap(items) {
     if (it.url && !m.has(it.url)) m.set(it.url, it);
   }
   return m;
+}
+
+/** 判断两批书签是否有实质变化（只比 URL、标题和文件夹路径，忽略时间戳） */
+function hasBookmarkChanged(a, b) {
+  if (a.length !== b.length) return true;
+  const mapA = new Map();
+  for (const item of a) {
+    if (item.url) mapA.set(item.url, { title: item.title || '', path: JSON.stringify(item.folderPath || []) });
+  }
+  for (const item of b) {
+    if (!item.url) continue;
+    const expected = mapA.get(item.url);
+    if (!expected) return true;
+    if (item.title !== expected.title) return true;
+    if (JSON.stringify(item.folderPath || []) !== expected.path) return true;
+  }
+  return false;
 }
 
 function buildSyncJSON(items) {
@@ -237,7 +256,7 @@ async function runFullSync() {
 
     // ---- 2. 备份当前状态到坚果云（仅书签有变化时才备份）----
     const { lastSyncItems } = await chrome.storage.local.get('lastSyncItems');
-    const hasChanged = !lastSyncItems || JSON.stringify(localItems) !== JSON.stringify(lastSyncItems);
+    const hasChanged = !lastSyncItems || hasBookmarkChanged(localItems, lastSyncItems);
     if (hasChanged) {
       const backupTS = new Date().toISOString().replace(/[:.]/g, '').slice(0, 15);
       await client.putFile(
@@ -354,7 +373,7 @@ async function runFullSync() {
     const mergedItems = flattenBookmarks(mergedTree);
 
     // 只有最终结果有变化时才上传（避免坚果云产生多余版本记录）
-    const mergedChanged = JSON.stringify(mergedItems) !== JSON.stringify(lastSyncItems || []);
+    const mergedChanged = !lastSyncItems || hasBookmarkChanged(mergedItems, lastSyncItems);
     if (mergedChanged) {
       const jsonStr = buildSyncJSON(mergedItems);
       const htmlStr = exportBookmarkHTML(mergedTree);
