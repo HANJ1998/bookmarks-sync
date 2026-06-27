@@ -42,23 +42,26 @@ async function loadHistory() {
   el.innerHTML = items;
 }
 
-// 检查 WebDAV 配置是否完整
-async function checkConfig() {
-  const config = await chrome.storage.sync.get(['webdavUrl', 'username', 'password']);
-  const ok = !!(config.webdavUrl && config.username && config.password);
-  $('configHint').style.display = ok ? 'none' : 'block';
-  $('syncBtn').disabled = !ok;
-  $('status').style.display = ok ? 'block' : 'none';
-  $('historyEmpty').style.display = ok ? '' : 'none';
-  $('historyList').style.display = ok ? '' : 'none';
+// 只检查配置，不碰历史区域的显示（由 loadHistory 自己管）
+function checkConfigAndInit() {
+  chrome.storage.sync.get(['webdavUrl', 'username', 'password'], (config) => {
+    const ok = !!(config.webdavUrl && config.username && config.password);
+    $('configHint').style.display = ok ? 'none' : 'block';
+    $('syncBtn').disabled = !ok;
+    $('status').style.display = ok ? 'block' : 'none';
+
+    if (ok) {
+      loadStatus();
+      loadHistory();
+    } else {
+      // 未配置：隐藏历史区域
+      $('historyEmpty').style.display = 'none';
+      $('historyList').style.display = 'none';
+    }
+  });
 }
 
-checkConfig().then(configured => {
-  if (configured) {
-    loadStatus();
-    loadHistory();
-  }
-});
+checkConfigAndInit();
 
 $('syncBtn').addEventListener('click', async () => {
   const btn = $('syncBtn');
@@ -87,4 +90,9 @@ $('openOptions').addEventListener('click', () => {
 
 $('goSettings').addEventListener('click', () => {
   chrome.runtime.openOptionsPage();
+});
+
+// 后台同步完成后自动刷新（弹出页打开时）
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === 'local' && changes.syncHistory) loadHistory();
 });
