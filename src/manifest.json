@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "一键书签同步",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "通过 WebDAV 将浏览器书签同步至坚果云，自动定时备份，支持双向同步",
   "permissions": ["bookmarks", "storage", "alarms"],
   "host_permissions": ["<all_urls>"],
