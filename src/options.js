@@ -90,3 +90,7 @@ function loadHistory() {
 }
 
 loadHistory();
+// 后台同步完成后自动刷新历史表格
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === 'local' && changes.syncHistory) loadHistory();
+});
