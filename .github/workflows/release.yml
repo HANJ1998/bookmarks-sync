@@ -42,9 +42,9 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.version.outputs.tag }}
-          name: "v${{ steps.version.outputs.tag }}"
+          name: ${{ steps.version.outputs.tag }}
           body: |
-            一键书签同步 v${{ steps.version.outputs.tag }}
+            一键书签同步 ${{ steps.version.outputs.tag }}
 
             ## 安装
             1. 下载 zip 并解压
