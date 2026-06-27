@@ -81,7 +81,7 @@
 3. 打开 Chrome 或 Edge 浏览器
 4. 进入扩展管理页：`chrome://extensions` 或 `edge://extensions`
 5. 开启右上角的「开发者模式」
-6. 点击「加载解压缩的扩展」→ 选择解压后的 `src/` 目录
+6. 点击「加载解压缩的扩展」→ 选择解压后的文件夹
 
 ### 首次配置
 
@@ -99,7 +99,7 @@
 5. 点击「保存设置」
 6. 返回弹窗点击「立即同步」
 
-> 坚果云用户：登录坚果云 → 账户信息 → 安全选项 → **添加应用密码**，用生成的密码填入上述密码字段。
+> 坚果云用户：坚果云 → 设置 → 第三方应用管理 → **添加应用密码**，用生成的密码填入上述密码字段。
 
 ## 同步模式
 
@@ -162,8 +162,8 @@
 git clone https://github.com/HANJ1998/bookmarks-sync.git
 
 # 加载扩展
-# Chrome: chrome://extensions → 加载解压缩的扩展 → 选择 src/
-# Edge:   edge://extensions   → 加载解压缩的扩展 → 选择 src/
+# Chrome: chrome://extensions → 加载解压缩的扩展 → 选择文件夹
+# Edge:   edge://extensions   → 加载解压缩的扩展 → 选择文件夹
 
 # 打包
 cd src && zip -r ../extension.zip ./*
